@@ -8,6 +8,5 @@ MNIST_data
 *.zip
 *.swp
 .*checkpoints
-lib/tf_models/problem2
 .ipynb_checkpoints
 *.DS_Store
