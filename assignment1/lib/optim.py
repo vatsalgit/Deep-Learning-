@@ -3,7 +3,7 @@ import numpy as np
 
 """ Super Class """
 class Optimizer(object):
-	""" 
+	"""
 	This is a template for implementing the classes of optimizers
 	"""
 	def __init__(self, net, lr=1e-4):
@@ -92,18 +92,22 @@ class Adam(Optimizer):
 		#############################################################################
 		# TODO: Implement the Adam                                                  #
 		#############################################################################
-		for layer in self.net.layers:
-			for n, v in layer.params.iteritems():
-				dv = layer.grads[n]
-				if n not in self.mt:
-					self.mt[n] = np.zeros_like(dv)
-				if n not in self.vt:
-					self.vt[n] = np.zeros_like(dv)
-				self.mt[n] = self.beta1 * (self.mt[n]) + (1.0-self.beta1) * dv
-				self.vt[n] = self.beta2 * (self.vt[n]) + (1.0-self.beta2) * (dv*dv)
-				m_cap = self.mt[n] / (1.0-self.beta1)
-				v_cap = self.vt[n] / (1.0-self.beta2)
-				layer.params[n] -= ((self.lr * m_cap) / (np.sqrt(v_cap)+self.eps))
+		self.t += 1
+        for layer in self.net.layers:
+            for n, v in layer.params.iteritems():
+                dv = layer.grads[n]
+                if n not in self.mt:
+                    self.mt[n] = np.zeros_like(dv)
+                self.mt[n] = self.beta1 * self.mt[n] + (1 - self.beta1) * dv
+                mt_cap = self.mt[n] / (1 - (self.beta1 ** self.t))
+
+                if n not in self.vt:
+                    self.vt[n] = np.zeros_like(dv)
+                self.vt[n] = self.beta2 * self.vt[n] + (1 - self.beta2) * (dv**2)
+                vt_cap = self.vt[n] / (1 - (self.beta2 ** self.t))
+
+                layer.params[n] -= self.lr * (mt_cap / (np.sqrt(vt_cap) + self.eps))
+        
 		#############################################################################
 		#                             END OF YOUR CODE                              #
 		#############################################################################
