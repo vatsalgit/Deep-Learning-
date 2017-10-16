@@ -106,9 +106,9 @@ class TinyNet(object):
 		""" Some comments """
 		self.net = sequential(
 			########## TODO: ##########
-			fc(3072, 1500, name="fc1"),
+			fc(3072, 250, name="fc1"),
 			relu(name="relu1"),
-			fc(1500, 10, name="fc2")
+			fc(250, 10, name="fc2")
 			########### END ###########
 		)
 

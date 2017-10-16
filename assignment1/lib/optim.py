@@ -44,10 +44,11 @@ class SGDM(Optimizer):
 		#############################################################################
 		for layer in self.net.layers:
 			for n, v in layer.params.iteritems():
-				dv = layer.grads[n]
+				grad_v = layer.grads[n]
 				if n not in self.velocity:
-					self.velocity[n] = np.zeros_like(dv)
-				self.velocity[n] = self.momentum * self.velocity[n] - self.lr * dv
+					self.velocity[n] = np.zeros_like(grad_v)
+                    
+				self.velocity[n] = self.momentum * self.velocity[n] - self.lr * grad_v
 				layer.params[n] += self.velocity[n]
 		#############################################################################
 		#                             END OF YOUR CODE                              #
@@ -68,11 +69,12 @@ class RMSProp(Optimizer):
 		#############################################################################
 		for layer in self.net.layers:
 			for n, v in layer.params.iteritems():
-				dv = layer.grads[n]
+				grad_v = layer.grads[n]
 				if n not in self.cache:
-					self.cache[n] = np.zeros_like(dv)
-				self.cache[n] = self.decay * self.cache[n] + (1-self.decay)* (dv * dv)
-				layer.params[n] -= ((self.lr * dv)/np.sqrt(self.cache[n]+self.eps))
+					self.cache[n] = np.zeros_like(grad_v)
+                    
+				self.cache[n] = self.decay * self.cache[n] + (1 - self.decay)* (grad_v ** 2 )
+				layer.params[n] -= ((self.lr * grad_v)/np.sqrt(self.cache[n]+self.eps))
 		#############################################################################
 		#                             END OF YOUR CODE                              #
 		#############################################################################
@@ -93,21 +95,23 @@ class Adam(Optimizer):
 		# TODO: Implement the Adam                                                  #
 		#############################################################################
 		self.t += 1
-        for layer in self.net.layers:
-            for n, v in layer.params.iteritems():
-                dv = layer.grads[n]
-                if n not in self.mt:
-                    self.mt[n] = np.zeros_like(dv)
-                self.mt[n] = self.beta1 * self.mt[n] + (1 - self.beta1) * dv
-                mt_cap = self.mt[n] / (1 - (self.beta1 ** self.t))
-
-                if n not in self.vt:
-                    self.vt[n] = np.zeros_like(dv)
-                self.vt[n] = self.beta2 * self.vt[n] + (1 - self.beta2) * (dv**2)
-                vt_cap = self.vt[n] / (1 - (self.beta2 ** self.t))
-
-                layer.params[n] -= self.lr * (mt_cap / (np.sqrt(vt_cap) + self.eps))
         
+		for layer in self.net.layers:
+			for n, v in layer.params.iteritems():
+				grad_v = layer.grads[n]
+				if n not in self.mt:
+					self.mt[n] = np.zeros_like(grad_v)
+                    
+				self.mt[n] = self.beta1 * self.mt[n] + (1 - self.beta1) * grad_v
+				mt_cap = self.mt[n] / (1 - (self.beta1 ** self.t))
+
+				if n not in self.vt:
+					self.vt[n] = np.zeros_like(grad_v)
+                    
+				self.vt[n] = self.beta2 * self.vt[n] + (1 - self.beta2) * (grad_v**2)
+				vt_cap = self.vt[n] / (1 - (self.beta2 ** self.t))
+				layer.params[n] -= self.lr * (mt_cap / (np.sqrt(vt_cap) + self.eps))
+
 		#############################################################################
 		#                             END OF YOUR CODE                              #
 		#############################################################################
