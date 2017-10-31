@@ -10,3 +10,5 @@ MNIST_data
 .*checkpoints
 .ipynb_checkpoints
 *.DS_Store
+data/mnist
+data/fashion_mnist
